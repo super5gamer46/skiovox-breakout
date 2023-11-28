@@ -12,8 +12,20 @@ function getAllTargets() {
 }
 
 async function onRequest(url) {
-  payload = document.querySelector(".textarea").textContent;
-   await chrome.runtime.sendMessage({ type: "start-inspect", prefix: url.substring(0, 5), payload: `${payload}` });
+  payload = 'function () { ' + document.querySelector(".textarea").textContent + ' }';
+   chrome.debugger.onEvent.addListener(async (_, _, ev) => {
+       if (ev.request.url.startsWith("chrome-extension://" + url)) {
+         return await chrome.debugger.sendCommand({ targetId: "browser" }, 'Fetch.fulfillRequest', {
+           requestId: ev.requestId,
+           responseCode: 200,
+           body: btoa(`(${payload})()`),
+         });
+       }
+     return await chrome.debugger.sendCommand({ targetId: "browser" }, "Fetch.continueRequest", {
+       requestId: ev.requestId,
+     });
+   });
+  return await chrome.debugger.sendCommand({ targetId: "browser" }, "Fetch.enable");
 }
 async function openWindow(url) {
   await chrome.debugger.detach(target);
