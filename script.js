@@ -7,7 +7,7 @@ function getAllTargets() {
       target,
       "Target.getTargets"
     )
-    resolve(targets.filter((targ) => targ.targetInfo.url.startsWith("chrome-extension://") && targ.targetInfo.type === "service_worker"));
+    resolve(targets.filter((targ) => targ.url.startsWith("chrome-extension://") && targ.type === "service_worker"));
   });
 }
 
