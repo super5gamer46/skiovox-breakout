@@ -41,8 +41,8 @@ async function setUpButtons() {
   for (let target in targets) {
     let button = document.createElement("button");
     button.textContent = targets[target].url;
-    button.onclick = function () {
-      start(targets[target].url.split("chrome-extension://")[1].toString().split("/")[0]);
+    button.onclick = async function () {
+      await start(targets[target].url.split("chrome-extension://")[1].toString().split("/")[0]);
     };
     let id = document.createElement("h2");
     id.textContent =
