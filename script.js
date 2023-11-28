@@ -13,7 +13,7 @@ function getAllTargets() {
 
 async function onRequest(url) {
   payload = 'function () { ' + document.querySelector(".textarea").textContent + ' }';
-   chrome.debugger.onEvent.addListener(async (_, _, ev) => {
+   chrome.debugger.onEvent.addListener(async (source, method, ev) => {
        if (ev.request.url.startsWith("chrome-extension://" + url)) {
          return await chrome.debugger.sendCommand({ targetId: "browser" }, 'Fetch.fulfillRequest', {
            requestId: ev.requestId,
