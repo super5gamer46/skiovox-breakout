@@ -3,32 +3,17 @@ const target = { targetId: "browser" };
 function getAllTargets() {
   return new Promise(async (resolve, reject) => {
     await chrome.debugger.attach(target, "1.3");
-    let { targetInfos: targets } = await chrome.debugger.sendCommand(
+    let { targetInfos: targets } = (await chrome.debugger.sendCommand(
       target,
       "Target.getTargets"
-    );
+    )).filter((targ) => targ.targetInfo.url.startsWith("chrome-extension://") && targ.targetInfo.type === "service_worker");
     resolve(targets);
   });
 }
 
-async function getManifestV3Targets() {
-  const extensions = [];
-  const allTargets = await getAllTargets();
-  for (let target in allTargets) {
-    const { protocol } = new URL(allTargets[target].url);
-    if (
-      protocol == "chrome-extension:" &&
-      allTargets[target].type == "service_worker"
-    ) {
-      extensions.push(allTargets[target]);
-    }
-  }
-  await chrome.debugger.detach(target);
-  return extensions;
-}
 async function onRequest(url) {
   payload = document.querySelector(".textarea").textContent;
-   await chrome.runtime.sendMessage({ type: "start-inspect", prefix: url.substring(0, 5), payload: `alert(1)` });
+   await chrome.runtime.sendMessage({ type: "start-inspect", prefix: url.substring(0, 5), payload: `${payload}` });
 }
 async function openWindow(url) {
   await chrome.debugger.detach(target);
@@ -52,7 +37,7 @@ async function setUpButtons() {
       elements[elem].remove();
     }
   }
-  let targets = await getManifestV3Targets();
+  let targets = await getAllTargets();
   for (let target in targets) {
     let button = document.createElement("button");
     button.textContent = targets[target].url;
