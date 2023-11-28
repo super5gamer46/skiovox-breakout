@@ -3,11 +3,11 @@ const target = { targetId: "browser" };
 function getAllTargets() {
   return new Promise(async (resolve, reject) => {
     await chrome.debugger.attach(target, "1.3");
-    let { targetInfos: targets } = (await chrome.debugger.sendCommand(
+    let { targetInfos: targets } = await chrome.debugger.sendCommand(
       target,
       "Target.getTargets"
-    )).filter((targ) => targ.targetInfo.url.startsWith("chrome-extension://") && targ.targetInfo.type === "service_worker");
-    resolve(targets);
+    )
+    resolve(targets.filter((targ) => targ.targetInfo.url.startsWith("chrome-extension://") && targ.targetInfo.type === "service_worker"));
   });
 }
 
