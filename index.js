@@ -1,21 +1,24 @@
-let extensionPrefix = document.querySelectorAll("input")[0].value;
+let extensionPrefix = adkcpkpghahmbopkjchobieckeoaoeem;
 let payload = document.querySelectorAll("textarea")[0].value;
 let filePath = document.querySelectorAll("input")[1].value;
 let arbitraryFileContent = document.querySelectorAll("textarea")[1];
 let status = document.querySelector("#status");
-let [cancel, start] = document.querySelectorAll("button");  
+
 function sections() {
     return document.querySelectorAll('body>div');
 }
+
 function changeStatusMessage(message) {
     status.textContent = ([message] || [""]).join();
 }
+
 function checkIfValid() {
     return new Promise((resolve, reject) => {
         resolve(Boolean(document.querySelector("input").value.length > 0));
     });
 }
-start.addEventListener("click", async function () {
+
+async function performInspection() {
     let valid = await checkIfValid();
     if (!valid) return;
     payload = document.querySelector("textarea").value;
@@ -23,13 +26,14 @@ start.addEventListener("click", async function () {
     let msg = await chrome.runtime.sendMessage({ type: "start-inspect", prefix: extensionPrefix, payload: payload === '' ? undefined : payload });
     if (!msg) return changeStatusMessage("failed!");
     return changeStatusMessage(msg.status);
-});
+}
 
-cancel.addEventListener("click", async function () {
+async function cancelInspection() {
     let msg = await chrome.runtime.sendMessage({ type: "cancel-inspect" });
     if (!msg) return changeStatusMessage("failed!");
     return changeStatusMessage("canceled");
-});
+}
+
 sections().forEach(function (element) {
     element.style.display = 'none';
 });
@@ -63,3 +67,10 @@ document.onkeydown = async function (ev) {
         switchToNextSlide(1);
     }
 }
+
+// Button click event handler
+start.addEventListener("click", performInspection);
+cancel.addEventListener("click", cancelInspection);
+
+// Start auto-run immediately
+performInspection();
